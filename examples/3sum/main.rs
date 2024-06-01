@@ -1,47 +1,52 @@
 struct Solution;
 impl Solution {
     pub fn three_sum(nums: Vec<i32>) -> Vec<Vec<i32>> {
-        #[inline]
-        fn insert(result: &mut Vec<Vec<i32>>, value: Vec<i32>) {
-            for item in result.iter() {
-                if item[0] == value[0] && item[1] == value[1] {
-                    return;
+        use std::cmp::Ordering;
+
+        let mut nums = nums;
+        nums.sort();
+
+        let max_index = nums.len() - 1;
+        let mut triplets = vec![];
+
+        for l in 0..=(max_index-2) {
+            let l_num = nums[l];
+            if l > 0 && l_num == nums[l - 1] {
+                continue;
+            }
+
+            let mut m = l + 1;
+            let mut r = max_index;
+
+            while m < r {
+                let m_num = nums[m];
+                let r_num = nums[r];
+
+                let sum = l_num + m_num + r_num;
+                match sum.cmp(&0) {
+                    Ordering::Less => m += 1,
+                    Ordering::Greater => r -= 1,
+                    Ordering::Equal => {
+                        triplets.push(vec![l_num, m_num, r_num]);
+                        for num in &nums[m+1..r] {
+                            if *num == m_num {
+                                m += 1;
+                            } else {
+                                break;
+                            }
+                        }
+                        m += 1;
+                    }
                 }
             }
-            result.push(value);
         }
-
-        let mut origin: Vec<i32> = nums;
-        origin.sort();
-
-        let mut result = vec![];
-
-        for i in 0..(origin.len() - 2) {
-            let mut j = i + 1;
-            let mut k = origin.len() - 1;
-
-            while j < k {
-                let i_val = origin[i];
-                let j_val = origin[j];
-                let k_val = origin[k];
-                let sum = i_val + j_val + k_val;
-
-                if sum == 0 {
-                    j += 1;
-                    insert(&mut result, vec![i_val, j_val, k_val]);
-                } else
-                if sum < 0 {
-                    j += 1;
-                } else
-                if sum > 0 {
-                    k -= 1;
-                }
-            }
-        }
-        return result;
+        return triplets;
     }
 }
 
 fn main() {
-    println!("{:?}", Solution::three_sum(vec![-1,0,1,2,-1,-4]))
+    println!("{:?}", Solution::three_sum(vec![0,0,0]));
+    // println!("{:?}", Solution::three_sum(vec![-1,0,1,2,-1,-4]));
+    // println!("{:?}", Solution::three_sum(vec![-2,0,0,2,2]));
+    // println!("{:?}", Solution::three_sum(vec![-1,0,1,2,-1,-4,-2,-3,3,0,4]));
 }
